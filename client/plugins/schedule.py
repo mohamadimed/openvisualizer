@@ -6,6 +6,9 @@ from openvisualizer.client.plugins.plugin import Plugin
 from openvisualizer.client.view import View
 from openvisualizer.motehandler.motestate.motestate import MoteState
 
+import os
+
+from appdirs import user_data_dir
 
 @Plugin.record_view("schedule")
 class Schedule(View):
@@ -70,6 +73,15 @@ class Schedule(View):
                 str(r['numTxACK']),
                 str(r['numRx']))
 
+#try to get autonomous RX cell of root to use it in schedule build in cmonitor_v1  (print it in file to get it later)
+            if ('anycast' in str(r['neighbor'])):
+                with open(os.path.join(user_data_dir('openvisualizer'), 'root_rx_auto_cell.txt'), 'w') as f:
+                    f.write(str(r['slotOffset']))
+                    f.write('\n')
+                    f.write(str(r['channelOffset']))
+                   
+                     #to print in file
+
             print(r_str.rjust(abs(w + int(len(r_str) / 2) + shift)))
 
         print(hdr_line.rjust(abs(w + int(len(hdr_line) / 2))))
@@ -77,6 +89,8 @@ class Schedule(View):
         print('{}{}:{}{:>15}'.format(yb, 'S', n, 'Shared cell?'))
         # print('{}{}:{}{:>19}'.format(yb, 'A', n, 'Autonomous cell?'))
         print('{}{}:{}{:>20}'.format(yb, 'Nb', n, '16-bit Neighbor ID'))
+
+
 
     def run(self):
         logging.debug("Enabling blessed fullscreen")
