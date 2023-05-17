@@ -441,8 +441,8 @@ class OpenLbr(EventBusClient):
                 #----------------------------------------------------------------------------------------------#              
                 #this line is added by me to print the packet if destinated to wkp_udp_port 
                 #which is used by cexample to send data periodically, can be used further to exploit content //may add a dipatch listener to get data process it/send it over MQTT...
-                #if (ipv6dic['udp_dest_port'] == 5683):
-                    #print("{}".format(ipv6dic['app_payload'][11:]))#after analysing payload, 11 first bytes are to ignore
+                if (ipv6dic['udp_dest_port'] == 61617):#5683
+                    print("SOURCE: {}".format(ipv6dic['src_addr']))#after analysing payload, 11 first bytes are to ignore
                 #----------------------------------------------------------------------------------------------#
 
             else:
@@ -454,7 +454,7 @@ class OpenLbr(EventBusClient):
             # receiver such as rpl DAO processing needs to know the source.
 
             success = self._dispatch_protocol(dispatch_signal, (ipv6dic['src_addr'], ipv6dic['app_payload']))
-            #print("HERE {}".format(success)) //non reachable, on _dispatch_protocol we got false
+            #print("HERE {}".format(success)) #non reachable, on _dispatch_protocol we got false
             if success:
                 return
 
@@ -462,7 +462,7 @@ class OpenLbr(EventBusClient):
             ipv6pkt = self.reassemble_ipv6_packet(ipv6dic)
 
             # check if the destination is reachable or not
-            #print("{}".format(ipv6dic['dst_addr']))
+            print("{}".format(ipv6dic['dst_addr']))
             route = self._get_source_route(ipv6dic['dst_addr'][8:])
 
             is_reachable = True
@@ -472,9 +472,11 @@ class OpenLbr(EventBusClient):
 
             if self.network_prefix == ipv6dic['dst_addr'][:8] and is_reachable:
                 # dispatch to mesh
+                print("v6ToMesh")
                 self.dispatch('v6ToMesh', ipv6pkt)
             else:
                 # dispatch to Internet
+                print("v6ToInternet")
                 self.dispatch('v6ToInternet', ipv6pkt)
 
         except (ValueError, IndexError, NotImplementedError) as err:
