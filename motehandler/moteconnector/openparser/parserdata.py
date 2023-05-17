@@ -144,6 +144,7 @@ class ParserData(parser.Parser):
         # cross layer trick here. capture UDP packet from udpLatency and get ASN to compute latency.
         offset = 0
         if len(data) > 37:
+            #print "len data = ",len(data)
             offset -= 7
             if self.UINJECT_MASK == ''.join(chr(i) for i in data[offset:]):
                 print ("received uinject packet")
@@ -218,7 +219,7 @@ class ParserData(parser.Parser):
                 pkt_info['numTicksTx_2']    = numTicksTx_2    # duty cycle
 
                 pkt_info['numTicksInTotal']    = numTicksInTotal   # duty cycle
-
+                #print "OFFSET = ",offset
                 #print (pkt_info)
                 with open('C:\\Users\\bmhg9130\\Desktop\\pkt_info.log'.format(),'a') as f:
                     f.write(str(pkt_info)+'\n')
@@ -277,6 +278,11 @@ class ParserData(parser.Parser):
 
         asn_init = struct.unpack('<HHB', ''.join([chr(c) for c in init]))
         asn_end = struct.unpack('<HHB', ''.join([chr(c) for c in end]))
+
+        print "INIT :",init, "ASN_Init : ",asn_init
+        print "END :",end, "ASN_End : ",asn_end
+        print ("diff = ",0x10000 * (asn_end[1] - asn_init[1]) + (asn_end[0] - asn_init[0]))
+        
         if asn_end[2] != asn_init[2]:  # 'byte4'
             return 0xFFFFFFFF
         else:
